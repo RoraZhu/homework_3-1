@@ -17,8 +17,12 @@ app.layout = html.Div([
     html.H2("Section 1: Fetch & Display exchange rate historical data"),
     html.H3("Select duration string:"),
     html.Div(children=[
-        dcc.Input(id="duration-str", type="number", placeholder=1, style={'width': '365px'}),
-        dcc.Dropdown(["S", "W", "D"], "S", id='duration-unit')], style={'width': '365px'}),
+        dcc.Input(id="duration-str", type="text", value="10", style={'width': '365px'}),
+        dcc.Dropdown(options=[
+            {'label': 'Seconds', 'value': 'S'},
+            {'label': 'Days', 'value': 'D'},
+            {'label': 'Weeks', 'value': 'W'}],
+            value="D", id='duration-unit')], style={'width': '365px'}),
     html.H3("Select bar size setting:"),
     html.Div(
         dcc.Dropdown(["1 sec", "5 secs", "15 secs", "30 secs", "1 min", "2 mins", "3 mins",
@@ -60,7 +64,7 @@ app.layout = html.Div([
                     dcc.DatePickerSingle(id='edt-date')
                 ],
                 style = {
-                    'display': 'inline-block',
+                    # 'display': 'inline-block',
                     'margin-right': '20px',
                 }
             ),
@@ -145,6 +149,13 @@ app.layout = html.Div([
 
 ])
 
+
+def timeReformat(time):
+    time = str(time)
+    if len(time) != 2:
+        time = "0" + time
+    return time
+
 # Callback for what to do when submit-button is pressed
 @app.callback(
     [ # there's more than one output here, so you have to use square brackets to pass it in as an array.
@@ -172,6 +183,11 @@ def update_candlestick_graph(n_clicks, currency_string, what_to_show,
     if any([i is None for i in [edt_date, edt_hour, edt_minute, edt_second]]):
         endDateTime = ''
     else:
+        date = ''.join(edt_date.split("-"))
+        hour = timeReformat(edt_hour)
+        minute = timeReformat(edt_minute)
+        second = timeReformat(edt_second)
+        endDateTime = date + ' ' + hour + ":" + minute + ":" + second
         print(edt_date, edt_hour, edt_minute, edt_second)
 
     # First things first -- what currency pair history do you want to fetch?
@@ -194,12 +210,12 @@ def update_candlestick_graph(n_clicks, currency_string, what_to_show,
     # Some default values are provided below to help with your testing.
     # Don't forget -- you'll need to update the signature in this callback
     #   function to include your new vars!
-    durationStr = str(duration_str) + ' ' + str(duration_unit)
+
 
     cph = fetch_historical_data(
         contract=contract,
-        endDateTime='',
-        durationStr=durationStr,       # <-- make a reactive input
+        endDateTime=endDateTime,
+        durationStr=f'{duration_str} {duration_unit}',       # <-- make a reactive input
         barSizeSetting=bar_size,  # <-- make a reactive input
         whatToShow=what_to_show,
         useRTH=all_or_trade               # <-- make a reactive input
