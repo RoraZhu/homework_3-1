@@ -122,9 +122,11 @@ app.layout = html.Div([
     # Line break
     html.Br(),
     # Div to hold the initial instructions and the updated info once submit is pressed
-    html.Div(id='currency-output', children='Enter a currency code and press submit'),
+    html.Div(id='currency-output', children='Enter a currency code and press submit', style={'color': 'red'}),
     # Div to hold the candlestick graph
-    html.Div([dcc.Graph(id='candlestick-graph')]),
+    dcc.Loading(
+        type="default",
+        children=html.Div([dcc.Graph(id='candlestick-graph')])),
     # Another line break
     html.Br(),
     # Section title
@@ -198,6 +200,18 @@ def update_candlestick_graph(n_clicks, currency_string, what_to_show,
     contract.exchange = 'IDEALPRO' # 'IDEALPRO' is the currency exchange.
     contract.currency = currency_string.split(".")[1]
 
+    contract_details, isSuccess = fetch_contract_details(contract)
+
+    outputString = ""
+
+    if not isSuccess:
+        outputString = contract_details
+        return outputString, None
+
+    if str(contract_details).split(",")[10] != currency_string:
+        outputString = "Contract details inconsistent with the input data!!"
+        return outputString, None
+
     ############################################################################
     ############################################################################
     # This block is the one you'll need to work on. UN-comment the code in this
@@ -210,8 +224,6 @@ def update_candlestick_graph(n_clicks, currency_string, what_to_show,
     # Some default values are provided below to help with your testing.
     # Don't forget -- you'll need to update the signature in this callback
     #   function to include your new vars!
-
-
     cph = fetch_historical_data(
         contract=contract,
         endDateTime=endDateTime,
