@@ -328,7 +328,7 @@ def update_candlestick_graph(n_clicks, currency_string, what_to_show,
 )
 # Still don't use n_clicks, but we need the dependency
 def trade(n_clicks, action, orderType, lmtPrice, symbol, secType, exchange, primaryExchange, trade_currency, trade_amt):
-    localData = pd.read_csv("/Users/rora/Desktop/submitted_order.csv")
+    localData = pd.read_csv("submitted_order.csv")
     columns = [{"name": i, "id": i} for i in localData.columns]
     data = localData.to_dict('records')
 
@@ -376,16 +376,16 @@ def trade(n_clicks, action, orderType, lmtPrice, symbol, secType, exchange, prim
     current_time = current_time.strftime("%d/%m/%Y %H:%M:%S")
     last = len(order_status) - 1
 
-    localData = pd.read_csv("/Users/rora/Desktop/submitted_order.csv")
+    localData = pd.read_csv("submitted_order.csv")
     localData = localData.append({'timestamp': current_time, 'order_id': order_status['order_id'].max(),
                                   'client_id': order_status['client_id'][last], 'perm_id': order_status['perm_id'][last],
                                   'con_id': contract_details['con_id'][0], 'symbol': symbol, 'action': action,
                                   'size': trade_amt, 'order_type': orderType, 'lmt_price': lmtPrice}, ignore_index=True)
-    localData.to_csv("/Users/rora/Desktop/submitted_order.csv", index=False)
+    localData.to_csv("submitted_order.csv", index=False)
     # Make the message that we want to send back to trade-output
     message = "Successfully " + action + ' ' + str(trade_amt) + ' share(s) of ' + symbol + "!"
 
-    localData = pd.read_csv("/Users/rora/Desktop/submitted_order.csv")
+    localData = pd.read_csv("submitted_order.csv")
     columns = [{"name": i, "id": i} for i in localData.columns]
     data = localData.to_dict('records')
 
